@@ -44,6 +44,8 @@ func (c Client) CreateEndUserAgreement(eua EndUserAgreement) (EndUserAgreement, 
 	if err != nil {
 		return EndUserAgreement{}, err
 	}
+	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {

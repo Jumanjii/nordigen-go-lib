@@ -52,6 +52,8 @@ func (c Client) newToken(secretId, secretKey string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
@@ -89,6 +91,8 @@ func (c Client) refreshToken(refresh string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {

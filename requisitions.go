@@ -83,6 +83,8 @@ func (c Client) GetRequisition(id string) (r Requisition, err error) {
 	if err != nil {
 		return Requisition{}, err
 	}
+	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {

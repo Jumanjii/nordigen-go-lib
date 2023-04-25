@@ -97,6 +97,8 @@ func (c Client) GetAccountMetadata(id string) (AccountMetadata, error) {
 	if err != nil {
 		return AccountMetadata{}, err
 	}
+	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
@@ -127,6 +129,8 @@ func (c Client) GetAccountBalances(id string) (AccountBalances, error) {
 	if err != nil {
 		return AccountBalances{}, err
 	}
+	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
@@ -157,6 +161,8 @@ func (c Client) GetAccountDetails(id string) (AccountDetails, error) {
 	if err != nil {
 		return AccountDetails{}, err
 	}
+	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
@@ -187,6 +193,8 @@ func (c Client) GetAccountTransactions(id string) (AccountTransactions, error) {
 	if err != nil {
 		return AccountTransactions{}, err
 	}
+	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
