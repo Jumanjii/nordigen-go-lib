@@ -12,12 +12,13 @@ const baseUrl = "ob.nordigen.com"
 const apiPath = "/api/v2"
 
 type Client struct {
-	c          *http.Client
-	secretId   string
-	secretKey  string
-	expiration time.Time
-	token      *Token
-	m          *sync.Mutex
+	c                 *http.Client
+	secretId          string
+	secretKey         string
+	expiration        time.Time
+	refreshExpiration time.Time
+	token             *Token
+	m                 *sync.Mutex
 }
 
 type refreshTokenTransport struct {
@@ -38,12 +39,17 @@ func (t refreshTokenTransport) RoundTrip(req *http.Request) (*http.Response, err
 	t.cli.m.Lock()
 
 	if t.cli.expiration.Before(time.Now()) {
-		t.cli.token, err = t.cli.refreshToken(t.cli.token.Refresh)
+		if t.cli.refreshExpiration.Before(time.Now()) {
+			t.cli.token, err = t.cli.newToken(t.cli.secretId, t.cli.secretKey)
+		} else {
+			t.cli.token, err = t.cli.refreshToken(t.cli.token.Refresh)
+		}
 
 		if err != nil {
 			return nil, err
 		}
-		t.cli.expiration.Add(time.Duration(t.cli.token.RefreshExpires-60) * time.Second)
+		t.cli.expiration.Add(time.Duration(t.cli.token.AccessExpires-60) * time.Second)
+		t.cli.refreshExpiration.Add(time.Duration(t.cli.token.RefreshExpires-60) * time.Second)
 	}
 	t.cli.m.Unlock()
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", t.cli.token.Access))
@@ -62,6 +68,7 @@ func NewClient(secretId, secretKey string) (*Client, error) {
 	}
 	c.c.Transport = refreshTokenTransport{rt: http.DefaultTransport, cli: c}
 	c.expiration = time.Now().Add(time.Duration(c.token.AccessExpires-60) * time.Second)
+	c.refreshExpiration = time.Now().Add(time.Duration(c.token.RefreshExpires-60) * time.Second)
 
 	return c, nil
 }
